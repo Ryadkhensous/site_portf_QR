@@ -37,7 +37,7 @@ Double-cliquez simplement sur le fichier [`index.html`](file:///d:/projets/site_
 ### Option 2 : Lancer avec le serveur local Node.js
 Ouvrez un terminal dans le dossier et lancez :
 ```bash
-node server.js
+node local-server.js
 ```
 ou
 ```bash
