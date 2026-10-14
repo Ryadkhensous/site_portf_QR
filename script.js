@@ -99,6 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Lucide icons
   refreshIcons();
 
+  // Initialize Fluid Animated Background
+  initFluidBackground();
+
   // Build and render QR Codes
   initQrCode(currentPreset);
 
@@ -255,6 +258,11 @@ function applyThemePreset(presetKey) {
   document.querySelectorAll('.preset-pill').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-preset') === presetKey);
   });
+
+  // Update fluid background color theme smoothly
+  if (fluidBg && typeof fluidBg.setTheme === 'function') {
+    fluidBg.setTheme(presetKey);
+  }
 
   // Re-render QR Code with new style colors
   initQrCode(presetKey);
@@ -455,4 +463,285 @@ function showToast(message) {
   toastTimeout = setTimeout(() => {
     toast.classList.remove('show');
   }, 3200);
+}
+
+/* --------------------------------------------------------------------------
+   FLUID BACKGROUND ANIMATION ENGINE
+   Interactive Particle Mesh & Organic Wave Physics
+   -------------------------------------------------------------------------- */
+let fluidBg = null;
+
+function initFluidBackground() {
+  const canvas = document.getElementById('fluid-bg-canvas');
+  if (!canvas) return;
+  fluidBg = new FluidBackground(canvas, currentPreset);
+  fluidBg.start();
+}
+
+class FluidBackground {
+  constructor(canvas, initialPresetKey) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.particles = [];
+    this.animationFrameId = null;
+    this.isRunning = false;
+    this.lastTime = 0;
+
+    // Theme RGB palettes
+    this.palettes = {
+      cyber: {
+        primary: { r: 0, g: 242, b: 254 },
+        secondary: { r: 56, g: 189, b: 248 }
+      },
+      violet: {
+        primary: { r: 217, g: 70, b: 239 },
+        secondary: { r: 139, g: 92, b: 246 }
+      },
+      emerald: {
+        primary: { r: 16, g: 185, b: 129 },
+        secondary: { r: 6, g: 182, b: 212 }
+      },
+      monochrome: {
+        primary: { r: 255, g: 255, b: 255 },
+        secondary: { r: 203, g: 213, b: 225 }
+      }
+    };
+
+    // Current interpolated color state
+    const current = this.palettes[initialPresetKey] || this.palettes.cyber;
+    this.colorCurrent = {
+      primary: { ...current.primary },
+      secondary: { ...current.secondary }
+    };
+    this.colorTarget = {
+      primary: { ...current.primary },
+      secondary: { ...current.secondary }
+    };
+
+    // Mouse tracking for fluid ripples
+    this.mouse = {
+      x: -1000,
+      y: -1000,
+      targetX: -1000,
+      targetY: -1000,
+      radius: 140,
+      isActive: false
+    };
+
+    this.setupListeners();
+    this.handleResize();
+    this.initParticles();
+  }
+
+  setupListeners() {
+    // Resize with debouncing
+    window.addEventListener('resize', () => {
+      this.handleResize();
+      this.initParticles();
+    }, { passive: true });
+
+    // Smooth mouse coordinates with lerp
+    window.addEventListener('mousemove', (e) => {
+      this.mouse.targetX = e.clientX;
+      this.mouse.targetY = e.clientY;
+      this.mouse.isActive = true;
+    }, { passive: true });
+
+    window.addEventListener('mouseleave', () => {
+      this.mouse.isActive = false;
+      this.mouse.targetX = -1000;
+      this.mouse.targetY = -1000;
+    }, { passive: true });
+
+    // Touch device support
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches[0]) {
+        this.mouse.targetX = e.touches[0].clientX;
+        this.mouse.targetY = e.touches[0].clientY;
+        this.mouse.isActive = true;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      this.mouse.isActive = false;
+      this.mouse.targetX = -1000;
+      this.mouse.targetY = -1000;
+    }, { passive: true });
+
+    // Pause when tab is inactive to preserve battery & GPU
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.pause();
+      } else {
+        this.start();
+      }
+    });
+  }
+
+  handleResize() {
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+
+    this.canvas.width = Math.floor(this.width * this.dpr);
+    this.canvas.height = Math.floor(this.height * this.dpr);
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  }
+
+  initParticles() {
+    // Determine count based on screen width
+    const isMobile = this.width < 768;
+    const count = isMobile ? 32 : 62;
+    this.maxConnectDistance = isMobile ? 95 : 135;
+
+    this.particles = [];
+    for (let i = 0; i < count; i++) {
+      this.particles.push({
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        originX: Math.random() * this.width,
+        originY: Math.random() * this.height,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
+        radius: Math.random() * 2.2 + 1.2,
+        baseAlpha: Math.random() * 0.45 + 0.35,
+        alphaOffset: Math.random() * Math.PI * 2,
+        seed: Math.random() * 100,
+        isAccent: i % 4 === 0
+      });
+    }
+  }
+
+  setTheme(presetKey) {
+    const palette = this.palettes[presetKey];
+    if (!palette) return;
+    this.colorTarget = {
+      primary: { ...palette.primary },
+      secondary: { ...palette.secondary }
+    };
+  }
+
+  updateColors() {
+    // Smooth lerp color values towards target
+    const lerpSpeed = 0.08;
+    ['primary', 'secondary'].forEach(type => {
+      ['r', 'g', 'b'].forEach(ch => {
+        this.colorCurrent[type][ch] += (this.colorTarget[type][ch] - this.colorCurrent[type][ch]) * lerpSpeed;
+      });
+    });
+  }
+
+  start() {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    this.lastTime = performance.now();
+    this.loop(this.lastTime);
+  }
+
+  pause() {
+    this.isRunning = false;
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+  }
+
+  loop(currentTime) {
+    if (!this.isRunning) return;
+
+    this.animationFrameId = requestAnimationFrame((t) => this.loop(t));
+
+    // Smooth mouse position lerping
+    this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.12;
+    this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.12;
+
+    this.updateColors();
+
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, this.width, this.height);
+
+    const time = currentTime * 0.001;
+    const prim = this.colorCurrent.primary;
+    const sec = this.colorCurrent.secondary;
+
+    const r1 = Math.round(prim.r), g1 = Math.round(prim.g), b1 = Math.round(prim.b);
+    const r2 = Math.round(sec.r), g2 = Math.round(sec.g), b2 = Math.round(sec.b);
+
+    const count = this.particles.length;
+
+    // 1. Draw Connecting Fluid Filaments
+    ctx.lineWidth = 1;
+    for (let i = 0; i < count; i++) {
+      const p1 = this.particles[i];
+      for (let j = i + 1; j < count; j++) {
+        const p2 = this.particles[j];
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < this.maxConnectDistance) {
+          const ratio = 1 - (dist / this.maxConnectDistance);
+          const lineAlpha = (ratio * ratio * 0.22);
+          
+          ctx.strokeStyle = `rgba(${r1}, ${g1}, ${b1}, ${lineAlpha})`;
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // 2. Update and Draw Fluid Particles
+    for (let i = 0; i < count; i++) {
+      const p = this.particles[i];
+
+      // Organic fluid motion (harmonic drift)
+      const waveX = Math.cos(time * 0.8 + p.seed) * 0.28;
+      const waveY = Math.sin(time * 0.7 + p.seed) * 0.28;
+
+      p.x += p.vx + waveX;
+      p.y += p.vy + waveY;
+
+      // Mouse fluid ripple interaction
+      if (this.mouse.isActive) {
+        const mdx = p.x - this.mouse.x;
+        const mdy = p.y - this.mouse.y;
+        const mDist = Math.hypot(mdx, mdy);
+
+        if (mDist < this.mouse.radius && mDist > 0.1) {
+          const force = (1 - mDist / this.mouse.radius) * 2.2;
+          p.x += (mdx / mDist) * force;
+          p.y += (mdy / mDist) * force;
+        }
+      }
+
+      // Torus wrapping with margin
+      const margin = 20;
+      if (p.x < -margin) p.x = this.width + margin;
+      else if (p.x > this.width + margin) p.x = -margin;
+      if (p.y < -margin) p.y = this.height + margin;
+      else if (p.y > this.height + margin) p.y = -margin;
+
+      // Twinkling pulsation
+      const currentAlpha = Math.max(0.15, p.baseAlpha + Math.sin(time * 1.5 + p.alphaOffset) * 0.2);
+
+      // Choose color
+      const useColor = p.isAccent ? `rgba(${r2}, ${g2}, ${b2}, ` : `rgba(${r1}, ${g1}, ${b1}, `;
+
+      // Particle outer glow for accent particles
+      if (p.isAccent) {
+        ctx.fillStyle = `${useColor}${currentAlpha * 0.25})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius * 3.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Particle core
+      ctx.fillStyle = `${useColor}${currentAlpha})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 }
