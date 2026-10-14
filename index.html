@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ryad Khensous — QR Code Portfolio</title>
+  
+  <!-- SEO & Open Graph Meta Tags -->
+  <meta name="description" content="Scannez le QR Code pour explorer le portfolio professionnel de Ryad Khensous, Développeur Web & Mobile. Découvrez ses projets, compétences et contactez-le.">
+  <meta name="author" content="Ryad Khensous">
+  <meta name="theme-color" content="#0a0e17">
+  
+  <meta property="og:title" content="Ryad Khensous — Portfolio QR Code">
+  <meta property="og:description" content="Accédez en un scan au portfolio interactif de Ryad Khensous. Projets web & mobile, compétences et coordonnées.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ryadkhensous.vercel.app/">
+
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons (CDN) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- QR Code Styling Library (High quality rounded QR codes with gradient) -->
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+  <!-- Fallback QRCode.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Animated Background Particles/Glow -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+  <div class="bg-grid-overlay"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="toast" role="alert" aria-live="polite">
+    <i data-lucide="check-circle" class="toast-icon"></i>
+    <span id="toast-message">Message copié !</span>
+  </div>
+
+  <div class="page-wrapper">
+    <!-- Top Navigation Bar -->
+    <header class="top-header">
+      <div class="brand">
+        <span class="brand-monogram">RK</span>
+        <span class="brand-name">Ryad Khensous</span>
+      </div>
+
+      <div class="header-badges">
+        <div class="status-badge" title="Actuellement disponible">
+          <span class="status-dot"></span>
+          <span>Disponible pour projets</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Hero Presentation -->
+    <main class="main-container">
+      <div class="card-glass qr-master-card">
+
+        <!-- Card Profile Header -->
+        <div class="profile-header">
+          <div class="avatar-container">
+            <div class="avatar-ring"></div>
+            <img 
+              id="user-avatar" 
+              src="https://ryadkhensous.vercel.app/image_profil.webp" 
+              alt="Photo de profil Ryad Khensous"
+              class="avatar-img"
+              onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Ryad+Khensous&background=00f2fe&color=0b1120&size=160&bold=true';"
+            />
+          </div>
+
+          <div class="profile-info">
+            <div class="badge-role">
+              <i data-lucide="code-2" class="mini-icon"></i>
+              <span>Développeur Web & Mobile</span>
+            </div>
+            <h1 class="hero-title">Scannez pour explorer mon Portfolio</h1>
+            <p class="hero-subtitle">
+              Pointez l'appareil photo de votre smartphone vers le QR Code ci-dessous pour accéder instantanément à mes réalisations et mon CV en ligne.
+            </p>
+          </div>
+        </div>
+
+        <!-- Target Destination Display -->
+        <div class="target-link-box">
+          <span class="link-label">
+            <i data-lucide="link" class="label-icon"></i> Destination :
+          </span>
+          <a href="https://ryadkhensous.vercel.app/" target="_blank" rel="noopener noreferrer" class="link-url" id="portfolio-url-display">
+            https://ryadkhensous.vercel.app/
+            <i data-lucide="external-link" class="inline-icon"></i>
+          </a>
+        </div>
+
+        <!-- Central QR Code Showcase Area -->
+        <div class="qr-showcase-zone">
+          <div class="qr-frame-outer">
+            <!-- Futuristic Corner Accents -->
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+
+            <!-- Animated Laser Scan Line -->
+            <div class="laser-scanner" id="laser-line"></div>
+
+            <!-- The QR Code Canvas Container -->
+            <div class="qr-canvas-holder" id="qr-code-container" title="Cliquez pour agrandir ou tester">
+              <!-- Dynamically populated by JavaScript -->
+            </div>
+
+            <!-- Badge Center Hint -->
+            <div class="scan-pill">
+              <i data-lucide="scan-line" class="pill-icon"></i>
+              <span>SCAN ME</span>
+            </div>
+          </div>
+
+          <!-- Quick Scan Instructions -->
+          <div class="scan-instructions">
+            <div class="inst-step">
+              <div class="step-num">1</div>
+              <span>Ouvrez l'appareil photo</span>
+            </div>
+            <div class="inst-divider"></div>
+            <div class="inst-step">
+              <div class="step-num">2</div>
+              <span>Cadrez le QR Code</span>
+            </div>
+            <div class="inst-divider"></div>
+            <div class="inst-step">
+              <div class="step-num">3</div>
+              <span>Touchez la notification</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Action Buttons -->
+        <div class="actions-grid">
+          <a href="https://ryadkhensous.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="btn-visit-portfolio">
+            <i data-lucide="compass"></i>
+            <span>Visiter le Portfolio</span>
+            <i data-lucide="arrow-up-right" class="btn-arrow"></i>
+          </a>
+
+          <button type="button" class="btn btn-secondary" id="btn-copy-link" aria-label="Copier le lien du portfolio">
+            <i data-lucide="copy" id="copy-icon"></i>
+            <span id="copy-btn-text">Copier le lien</span>
+          </button>
+
+          <button type="button" class="btn btn-secondary" id="btn-share" aria-label="Partager le QR Code">
+            <i data-lucide="share-2"></i>
+            <span>Partager</span>
+          </button>
+        </div>
+
+        <!-- Customization & Download Tools Section -->
+        <div class="customizer-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i data-lucide="palette" class="panel-icon"></i>
+              <span>Personnaliser l'apparence du QR Code</span>
+            </div>
+            <button type="button" class="laser-toggle-btn" id="btn-toggle-laser" title="Activer / désactiver l'animation de scan">
+              <i data-lucide="play" id="laser-btn-icon"></i>
+              <span id="laser-btn-text">Animation</span>
+            </button>
+          </div>
+
+          <!-- Theme Presets Switcher -->
+          <div class="theme-presets-bar">
+            <button type="button" class="preset-pill active" data-preset="cyber" title="Thème Cyber Cyan">
+              <span class="color-dot dot-cyber"></span>
+              <span>Cyber Cyan</span>
+            </button>
+            <button type="button" class="preset-pill" data-preset="violet" title="Thème Néon Violet">
+              <span class="color-dot dot-violet"></span>
+              <span>Néon Violet</span>
+            </button>
+            <button type="button" class="preset-pill" data-preset="emerald" title="Thème Émeraude">
+              <span class="color-dot dot-emerald"></span>
+              <span>Émeraude Tech</span>
+            </button>
+            <button type="button" class="preset-pill" data-preset="monochrome" title="Thème Minimaliste">
+              <span class="color-dot dot-mono"></span>
+              <span>Minimal Blanc</span>
+            </button>
+          </div>
+
+          <!-- Download Action Bar for Business Cards / Printing / CV -->
+          <div class="download-bar">
+            <div class="download-info">
+              <i data-lucide="download" class="download-icon"></i>
+              <div>
+                <strong>Télécharger pour votre CV ou cartes de visite</strong>
+                <p>Haute résolution (1000x1000px), format prêt pour l'impression.</p>
+              </div>
+            </div>
+            <div class="download-buttons">
+              <button type="button" class="btn-download" id="btn-download-png">
+                <i data-lucide="image"></i>
+                <span>Format PNG</span>
+              </button>
+              <button type="button" class="btn-download" id="btn-download-svg">
+                <i data-lucide="file-code"></i>
+                <span>Format SVG</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Portfolio Highlights Grid (Teaser of what's inside) -->
+        <div class="portfolio-preview-section">
+          <h2 class="section-title">Ce que vous découvrirez sur mon portfolio</h2>
+          <div class="highlights-grid">
+            <div class="highlight-card">
+              <div class="hl-icon-box hl-blue">
+                <i data-lucide="layers"></i>
+              </div>
+              <div class="hl-content">
+                <h3>Projets & Réalisations</h3>
+                <p>Applications web interactives, solutions modernes et designs soignés.</p>
+              </div>
+            </div>
+
+            <div class="highlight-card">
+              <div class="hl-icon-box hl-purple">
+                <i data-lucide="cpu"></i>
+              </div>
+              <div class="hl-content">
+                <h3>Stack & Technologies</h3>
+                <p>React, JavaScript, HTML5/CSS3, APIs et développement d'applications mobiles.</p>
+              </div>
+            </div>
+
+            <div class="highlight-card">
+              <div class="hl-icon-box hl-emerald">
+                <i data-lucide="file-text"></i>
+              </div>
+              <div class="hl-content">
+                <h3>Parcours & CV</h3>
+                <p>Consultez mon profil complet, mon expérience et mes compétences clés.</p>
+              </div>
+            </div>
+
+            <div class="highlight-card">
+              <div class="hl-icon-box hl-amber">
+                <i data-lucide="message-square"></i>
+              </div>
+              <div class="hl-content">
+                <h3>Contact Direct</h3>
+                <p>Discutons de vos besoins, opportunités de collaboration ou missions freelance.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Card Simulation View Modal / Toggle -->
+        <div class="card-simulation-wrapper">
+          <div class="card-sim-header">
+            <span>Aperçu Carte de Visite Digitale</span>
+            <span class="sim-tag">Prêt à imprimer</span>
+          </div>
+          <div class="virtual-card">
+            <div class="vcard-left">
+              <div class="vcard-avatar">RK</div>
+              <div>
+                <h4 class="vcard-name">Ryad Khensous</h4>
+                <p class="vcard-job">Développeur Web & Mobile</p>
+                <p class="vcard-url">ryadkhensous.vercel.app</p>
+              </div>
+            </div>
+            <div class="vcard-right">
+              <div class="vcard-mini-qr" id="mini-qr-target">
+                <!-- Mini QR preview inserted via JS -->
+              </div>
+              <span class="vcard-tip">Scannez-moi</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <p>
+        © <span id="current-year">2026</span> <strong>Ryad Khensous</strong> — Portfolio QR Portal.
+        Tous droits réservés.
+      </p>
+      <div class="footer-links">
+        <a href="https://ryadkhensous.vercel.app/" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="globe"></i> ryadkhensous.vercel.app
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

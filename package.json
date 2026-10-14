@@ -1,0 +1,16 @@
+{
+  "name": "ryad-khensous-qr-portfolio",
+  "version": "1.0.0",
+  "description": "Portail interactif de QR Code vers le portfolio de Ryad Khensous",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "qr-code",
+    "portfolio",
+    "developer"
+  ],
+  "author": "Ryad Khensous",
+  "license": "MIT"
+}
