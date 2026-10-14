@@ -1,10 +1,9 @@
 {
-  "name": "ryad-khensous-qr-portfolio",
+  "name": "site-portf-qr",
   "version": "1.0.0",
   "description": "Portail interactif de QR Code vers le portfolio de Ryad Khensous",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "dev": "node server.js"
   },
   "keywords": [
     "qr-code",
